@@ -9,8 +9,6 @@ Proiectul permite utilizatorului să joace clasicul joc de X și O pe un ecran L
 
 ![Screenshot 2024-12-15 170358](https://github.com/user-attachments/assets/10d03291-4875-4780-a525-f9c9b0b1c29c)
 
-
-
 În cadrul acestui proiect, doi jucători vor folosi, pe rând, joystick-ul pentru a naviga pe o tablă de joc. Prin apăsarea butonului de pe joystick, aceștia confirmă mutarea, iar dispozitivul va atribui automat simbolul corespunzător jucătorului activ, în funcție de numărul rundei. După fiecare mutare, sistemul verifică dacă există o combinație câștigătoare. Dacă nu se identifică un câștigător și nu mai există spații libere pe tablă, partida se încheie cu o remiză. La final, un mesaj afișează rezultatul: victoria jucătorului 1 sau 2, ori remiza, în funcție de situație.
 
 # Hardware Design
@@ -37,6 +35,10 @@ Schema electrica: https://wokwi.com/projects/417351812325771265
 | 5   | **Rezistență 220Ω**      | Rezistență pentru buton și LED                    | -         | Facultate   |            |
 | 6   | **Fire de conexiune**    | Fire pentru conexiuni între module și Arduino     | -     | Facultate   |                                                                 |
 | 7   | **Breadboard**           | Placă de testare pentru prototipuri               | 1         | Facultate   |    |
+
+
+![0ae9b293-f1ea-46e4-9009-17bb79a071c4](https://github.com/user-attachments/assets/1589459d-191e-4596-b40d-9f03ecc142f1)
+
 
 # Descrierea Funcționalității Hardware
 
