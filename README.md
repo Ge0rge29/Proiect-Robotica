@@ -7,7 +7,8 @@ Proiectul permite utilizatorului să joace clasicul joc de X și O pe un ecran L
 
 # Descriere generală
 
-![Screenshot 2024-12-15 170358](https://github.com/user-attachments/assets/10d03291-4875-4780-a525-f9c9b0b1c29c)
+![imgrobo](https://github.com/user-attachments/assets/e62c20b9-60cb-4cdd-8b0d-2a1e03aff2af)
+
 
 În cadrul acestui proiect, doi jucători vor folosi, pe rând, joystick-ul pentru a naviga pe o tablă de joc. Prin apăsarea butonului de pe joystick, aceștia confirmă mutarea, iar dispozitivul va atribui automat simbolul corespunzător jucătorului activ, în funcție de numărul rundei. După fiecare mutare, sistemul verifică dacă există o combinație câștigătoare. Dacă nu se identifică un câștigător și nu mai există spații libere pe tablă, partida se încheie cu o remiză. La final, un mesaj afișează rezultatul: victoria jucătorului 1 sau 2, ori remiza, în funcție de situație.
 
@@ -23,6 +24,7 @@ Schema electrica: https://wokwi.com/projects/417351812325771265
 - **Fire de conexiune** 
 - **Breadboard**
 - **Buton de start**
+- **Buzzer**
 
 # Bill of Materials (BOM) pentru Proiectul X și O cu Arduino
 
@@ -32,12 +34,11 @@ Schema electrica: https://wokwi.com/projects/417351812325771265
 | 2   | **Joystick**             | Joystick 2 axe cu buton integrat                  | 1         | Facultate |     |
 | 3   | **LCD 128x160 SPI**      | Ecran LCD cu 128x160 px și interfață SPI          | 1         | optimus digital.ro | https://www.optimusdigital.ro/en/lcds/12392-modul-lcd-de-18-cu-spi-i-controller-st7735-128x160-px.html?gad_source=1&gclid=CjwKCAiAmfq6BhAsEiwAX1jsZwh_IV_gGrMe_jemneTNzMCyaAKME1BIM87AnANaRKASR271lopC7xoCodgQAvD_BwE|
 | 4   | **Buton Push**           | Buton tactil pentru start/reset joc               | 1         | Facultate   |            |
-| 5   | **Rezistență 220Ω**      | Rezistență pentru buton și LED                    | -         | Facultate   |            |
+| 5   | **Buzzer**               | Dispozitiv pentru generarea de suntete            | 1         | Facultate   |            |
 | 6   | **Fire de conexiune**    | Fire pentru conexiuni între module și Arduino     | -     | Facultate   |                                                                 |
 | 7   | **Breadboard**           | Placă de testare pentru prototipuri               | 1         | Facultate   |    |
 
-
-![0ae9b293-f1ea-46e4-9009-17bb79a071c4](https://github.com/user-attachments/assets/1589459d-191e-4596-b40d-9f03ecc142f1)
+![b2e18c88-8f6d-4cab-b3c5-8a97f4e42b10](https://github.com/user-attachments/assets/e7de5c60-a145-43b6-bd68-501423fdb0e8)
 
 
 # Descrierea Funcționalității Hardware
@@ -104,40 +105,87 @@ Backlight LED - Pin 5V: LED-ul de fundal al ecranului LCD este alimentat cu tens
 ## 4. Buton de Start/Reset
 **Rol:** Butonul permite utilizatorului să înceapă un nou joc sau să reseteze jocul curent.
 
-**Interfețe:**
-- Butonul este conectat la un pin digital (**D3**) și folosește rezistența **Pull-Up internă** a Arduino pentru a detecta apăsarea.
+**Funcționare:**
+- Butonul este conectat la pinul digital (**D3**) și folosește rezistența **Pull-Up internă** a Arduino pentru a detecta apăsarea.
 
+## 3. Buzzer
 
+**Rol:**  
+Buzzerul este un dispozitiv utilizat pentru a genera sunete, oferind feedback auditiv în timpul jocului. În acest proiect, buzzerul este folosit pentru a marca evenimente importante, cum ar fi câștigarea jocului sau remiza.
+
+**Funcționare:**  
+- **Buzzer Pasiv:**  
+  - Conversia semnalelor PWM în sunet este realizată prin vibrațiile diafragmei interne, controlate de frecvența semnalului PWM trimis. Aceasta permite controlul complet asupra tonului generat. 
+
+**Interfață:**  
+- **PWM (Laboratorul 3):**  
+  - Un buzzer **pasiv** necesită semnale PWM pentru a produce sunete de frecvențe diferite. Funcția utilizată în Arduino pentru a genera astfel de semnale este **`tone()`**.
+  - 
+---
 # Software Design
 
 ## Software Design
 
 ### Mediul de dezvoltare
-- **Arduino IDE**: Utilizat pentru scrierea, compilarea și încărcarea codului pe microcontroller.
+- **Arduino IDE**: Utilizat pentru scrierea, compilarea și încărcarea codului pe microcontroller. Arduino IDE permite o integrare rapidă cu bibliotecile și perifericele utilizate.
 
 ### Biblioteci utilizate
-- **LiquidCrystal_I2C**: Pentru comunicarea cu ecranul LCD prin protocolul I2C.
+- **Adafruit_GFX**: Bibliotecă utilizată pentru funcții grafice generale, precum desenarea liniilor, dreptunghiurilor și textului.
+- **Adafruit_ST7735**: Bibliotecă pentru comunicarea cu ecranul LCD TFT bazat pe driverul ST7735. Aceasta permite desenarea pe ecran și actualizarea rapidă a conținutului.
 
 ### Funcționalități implementate
 1. **Inițializare hardware**:
-   - Configurarea joystick-ului și a ecranului LCD.
+   - Configurarea ecranului TFT pentru afișarea informațiilor despre joc.
+   - Configurarea joystick-ului pentru navigarea pe tablă.
+   - Configurarea buzzerului pentru a oferi feedback auditiv.
 
 2. **Logica jocului**:
-   - Validarea mutărilor efectuate.
-   - Detectarea unei victorii sau a unei remize.
+   - **Resetează tabla de joc**: Funcția `resetBoard()` curăță tabla înainte de începerea unei noi partide.
+   - **Detectarea unei victorii**: Funcția `checkWinner()` verifică dacă unul dintre jucători a câștigat după fiecare mutare.
+   - **Detectarea unei remize**: Funcția `isBoardFull()` verifică dacă toate pozițiile de pe tablă sunt ocupate fără a avea un câștigător.
+   - **Gestionarea scorurilor**: Scorurile pentru jucătorii `X` și `O` sunt actualizate și afișate după fiecare partidă.
 
 3. **Afișare pe LCD**:
-   - Actualizarea tabloului de joc după fiecare mutare.
-   - Afișarea mesajelor despre starea jocului (victorie, remiză).
+   - **Tabla de joc**: Funcția `displayBoard()` afișează tabla de joc pe ecran, inclusiv grila și simbolurile jucătorilor (`X` și `O`).
+   - **Evidențierea poziției cursorului**: Funcția `highlightCursor()` utilizează un chenar roșu pentru a indica poziția curentă a cursorului.
+   - **Mesaje despre starea jocului**: Mesaje precum „Felicitări!”, „Remiză!” sau „Apasă START pentru a începe” sunt afișate în momente relevante.
 
 4. **Controlul mutărilor**:
-   - Jucătorii utilizează joystick-ul pentru a naviga pe tablă.
-   - Confirmarea mutării prin apăsarea butonului.
-  
- # Rezultate Obținute
+   - **Joystick-ul**: Valorile citite de la joystick (pe axele X și Y) sunt utilizate pentru a deplasa cursorul pe tablă.
+   - **Confirmarea mutării**: Apăsarea butonului joystick-ului confirmă poziția dorită pentru simbolul jucătorului curent (`X` sau `O`).
 
- # Concluzii
+5. **Feedback auditiv**:
+   - Funcția `tone()` controlează buzzerul pentru a emite sunete distincte în momente cheie, precum victorie, remiză sau mutare invalidă.
 
- # Bibliografie/Resurse
+---
+
+**Video**: https://youtube.com/shorts/H3dvkRSxL9o?feature=share
+
+# Rezultate Obținute
+
+1. **Funcționalitatea completă a jocului**: Jocul „X și O” a fost implementat cu succes, permițând doi jucători să participe în mod interactiv.
+2. **Afișare vizuală eficientă**: Tabla de joc este clar afișată pe ecranul TFT, cu actualizări în timp real pentru fiecare mutare.
+3. **Control intuitiv**: Navigarea pe tablă cu joystick-ul este simplă și intuitivă, iar confirmarea mutării este realizată rapid.
+4. **Feedback multimodal**: Utilizarea buzzerului oferă o dimensiune auditivă suplimentară, îmbunătățind experiența utilizatorului.
+
+---
+
+# Concluzii
+
+Proiectul demonstrează utilizarea eficientă a unui microcontroller pentru implementarea unui joc interactiv. Prin integrarea mai multor periferice (joystick, LCD, buzzer) și utilizarea unor tehnici precum PWM și ADC, s-au atins obiectivele stabilite. Jocul este intuitiv și oferă o experiență plăcută utilizatorilor, având un design robust și ușor de extins.
+
+---
+
+# Bibliografie/Resurse
+
+1. **Bibliotecile Adafruit:**
+   - [Adafruit_GFX Library](https://github.com/adafruit/Adafruit-GFX-Library)
+   - [Adafruit_ST7735 Library](https://github.com/adafruit/Adafruit-ST7735-Library)
+2. **Documentația Arduino:**
+   - [Funcția tone()](https://www.arduino.cc/reference/en/language/functions/advanced-io/tone/)
+   - [Funcția analogRead()](https://www.arduino.cc/reference/tr/language/functions/analog-io/analogread/)
+3. **Datasheet ST7735: [ST7735.PDF](https://github.com/user-attachments/files/18388526/ST7735.PDF) .**
+4. **Tutoriale pentru programarea microcontrolerelor.**
+
 
 
